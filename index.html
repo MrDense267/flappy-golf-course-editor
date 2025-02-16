@@ -6,16 +6,18 @@
     <title>Flappy Golf Course Editor</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 600px; margin: auto; }
+        .container { max-width: 800px; margin: auto; }
         input, button, select, textarea { display: block; margin: 10px 0; padding: 8px; width: 100%; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        canvas { border: 2px solid black; display: block; margin: auto; background: lightblue; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Flappy Golf Course Editor</h2>
         
+        <h3>World Properties</h3>
         <label>World Name:</label>
         <input type="text" id="worldName" value="Grassy Land">
         
@@ -32,90 +34,87 @@
         <label>Difficulty:</label>
         <input type="text" id="difficulty" value="easy">
         
-        <label>Stars Required:</label>
-        <input type="number" id="starsRequired" value="0">
+        <h3>Level Editor</h3>
+        <canvas id="levelCanvas" width="600" height="400"></canvas>
+        <button onclick="addObject('green')">Add Green Terrain</button>
+        <button onclick="addObject('water')">Add Water</button>
+        <button onclick="addObject('sand')">Add Sand</button>
+        <button onclick="addObject('sticky')">Add Sticky Terrain</button>
+        <button onclick="clearCanvas()">Clear Canvas</button>
         
-        <label>Unlock Bucks:</label>
-        <input type="number" id="unlockBucks" value="1024">
+        <h3>Start and Flag Positions</h3>
+        <label>Start Position (x, y):</label>
+        <input type="text" id="startPos" value="149,218">
+        <label>Flag Position (x, y):</label>
+        <input type="text" id="flagPos" value="860,225">
         
-        <label>Unlock Level:</label>
-        <input type="number" id="unlockLevel" value="10">
-        
-        <h3>Leaderboard IDs</h3>
-        <label>Amazon:</label>
-        <input type="text" id="leaderboardAmazon" value="abc123">
-        <label>Apple:</label>
-        <input type="text" id="leaderboardApple" value="abc123">
-        <label>Google:</label>
-        <input type="text" id="leaderboardGoogle" value="abc123">
-        
-        <h3>Golf Bux Identifiers</h3>
-        <textarea id="buxIdents">sensor(golfBux):Level5:80, sensor(golfBux):Level5:81, sensor(golfBux):Level5:82, sensor(golfBux):Level6:83, sensor(golfBux):Level6:84, sensor(golfBux):Level6:85, sensor(golfBux):Level7:86, sensor(golfBux):Level7:87, sensor(golfBux):Level7:88, sensor(golfBux):Level9:89</textarea>
-        
-        <h3>Hole Pars</h3>
-        <table>
-            <tr>
-                <th>Hole #</th>
-                <th>Par</th>
-            </tr>
-            <script>
-                for (let i = 1; i <= 9; i++) {
-                    document.write(`<tr><td>${i}</td><td><input type='number' value='4'></td></tr>`);
-                }
-            </script>
-        </table>
-        
-        <h3>Flappy Holes</h3>
-        <table>
-            <tr>
-                <th>Hole #</th>
-                <th>Gold</th>
-                <th>Silver</th>
-                <th>Bronze</th>
-                <th>Superstar</th>
-            </tr>
-            <script>
-                for (let i = 1; i <= 9; i++) {
-                    document.write(`<tr>
-                        <td>${i}</td>
-                        <td><input type='number' value='7'></td>
-                        <td><input type='number' value='10'></td>
-                        <td><input type='number' value='14'></td>
-                        <td><input type='number' value='5'></td>
-                    </tr>`);
-                }
-            </script>
-        </table>
-        
-        <button onclick="saveWorld()">Save World</button>
+        <button onclick="saveData()">Save Data</button>
     </div>
 
     <script>
-        function saveWorld() {
+        let canvas = document.getElementById("levelCanvas");
+        let ctx = canvas.getContext("2d");
+        let objects = { green: [], water: [], sand: [], sticky: [], start: { x: 149, y: 218 }, flag: { x: 860, y: 225 } };
+
+        function drawObjects() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "green";
+            objects.green.forEach(obj => ctx.fillRect(obj.x, obj.y, 50, 10));
+            ctx.fillStyle = "blue";
+            objects.water.forEach(obj => ctx.fillRect(obj.x, obj.y, 50, 10));
+            ctx.fillStyle = "yellow";
+            objects.sand.forEach(obj => ctx.fillRect(obj.x, obj.y, 50, 10));
+            ctx.fillStyle = "purple";
+            objects.sticky.forEach(obj => ctx.fillRect(obj.x, obj.y, 50, 10));
+            
+            ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.arc(objects.start.x, objects.start.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(objects.flag.x, objects.flag.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function addObject(type) {
+            let x = Math.random() * canvas.width;
+            let y = Math.random() * canvas.height;
+            objects[type].push({ x, y });
+            drawObjects();
+        }
+
+        function clearCanvas() {
+            objects = { green: [], water: [], sand: [], sticky: [], start: { x: 149, y: 218 }, flag: { x: 860, y: 225 } };
+            drawObjects();
+        }
+
+        function saveData() {
             let worldData = {
                 name: document.getElementById('worldName').value,
                 notes: document.getElementById('notes').value,
                 music: document.getElementById('music').value,
                 difficulty: document.getElementById('difficulty').value,
-                starsRequired: Number(document.getElementById('starsRequired').value),
-                unlock: {
-                    bucks: Number(document.getElementById('unlockBucks').value),
-                    level: Number(document.getElementById('unlockLevel').value)
-                },
-                leaderboard: {
-                    amazon: document.getElementById('leaderboardAmazon').value,
-                    apple: document.getElementById('leaderboardApple').value,
-                    google: document.getElementById('leaderboardGoogle').value
-                },
-                buxIdents: document.getElementById('buxIdents').value.split(", "),
-                holePars: Array.from(document.querySelectorAll('table:nth-of-type(1) input')).map(input => Number(input.value)),
-                flappyHoles: Array.from(document.querySelectorAll('table:nth-of-type(2) tr:not(:first-child)')).map(row => 
-                    Array.from(row.querySelectorAll('input')).map(input => Number(input.value))
-                )
             };
+            
+            let levelData = {
+                dynamic: {
+                    start: `{${objects.start.x},${objects.start.y}}`,
+                    flag: `{${objects.flag.x},${objects.flag.y}}`,
+                    green: objects.green.map(obj => `{{${obj.x},${obj.y}},{50,10}}`),
+                    water: objects.water.map(obj => `{{${obj.x},${obj.y}},{50,10}}`),
+                    sand: objects.sand.map(obj => `{{${obj.x},${obj.y}},{50,10}}`),
+                    sticky: objects.sticky.map(obj => `{{${obj.x},${obj.y}},{50,10}}`)
+                }
+            };
+            
             console.log("World Data:", worldData);
-            alert("World saved! Check the console for output.");
+            console.log("Level Data:", levelData);
+            alert("World and Level data saved! Check the console for output.");
         }
+
+        drawObjects();
     </script>
 </body>
 </html>
