@@ -7,7 +7,7 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 600px; margin: auto; }
-        input, button { display: block; margin: 10px 0; padding: 8px; width: 100%; }
+        input, button, select, textarea { display: block; margin: 10px 0; padding: 8px; width: 100%; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
     </style>
@@ -23,7 +23,11 @@
         <input type="text" id="notes" value="The grassiest level!">
         
         <label>Music:</label>
-        <input type="text" id="music" value="Song1">
+        <select id="music">
+            <option value="2">Song 2</option>
+            <option value="8">Song 8</option>
+            <option value="11">Song 11</option>
+        </select>
         
         <label>Difficulty:</label>
         <input type="text" id="difficulty" value="easy">
@@ -36,6 +40,17 @@
         
         <label>Unlock Level:</label>
         <input type="number" id="unlockLevel" value="10">
+        
+        <h3>Leaderboard IDs</h3>
+        <label>Amazon:</label>
+        <input type="text" id="leaderboardAmazon" value="abc123">
+        <label>Apple:</label>
+        <input type="text" id="leaderboardApple" value="abc123">
+        <label>Google:</label>
+        <input type="text" id="leaderboardGoogle" value="abc123">
+        
+        <h3>Golf Bux Identifiers</h3>
+        <textarea id="buxIdents">sensor(golfBux):Level5:80, sensor(golfBux):Level5:81, sensor(golfBux):Level5:82, sensor(golfBux):Level6:83, sensor(golfBux):Level6:84, sensor(golfBux):Level6:85, sensor(golfBux):Level7:86, sensor(golfBux):Level7:87, sensor(golfBux):Level7:88, sensor(golfBux):Level9:89</textarea>
         
         <h3>Hole Pars</h3>
         <table>
@@ -87,6 +102,12 @@
                     bucks: Number(document.getElementById('unlockBucks').value),
                     level: Number(document.getElementById('unlockLevel').value)
                 },
+                leaderboard: {
+                    amazon: document.getElementById('leaderboardAmazon').value,
+                    apple: document.getElementById('leaderboardApple').value,
+                    google: document.getElementById('leaderboardGoogle').value
+                },
+                buxIdents: document.getElementById('buxIdents').value.split(", "),
                 holePars: Array.from(document.querySelectorAll('table:nth-of-type(1) input')).map(input => Number(input.value)),
                 flappyHoles: Array.from(document.querySelectorAll('table:nth-of-type(2) tr:not(:first-child)')).map(row => 
                     Array.from(row.querySelectorAll('input')).map(input => Number(input.value))
