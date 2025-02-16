@@ -10,7 +10,7 @@
         input, button, select, textarea { display: block; margin: 10px 0; padding: 8px; width: 100%; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        canvas { border: 2px solid black; display: block; margin: auto; background: lightblue; }
+        canvas { border: 2px solid black; display: block; margin: auto; background: lightblue; cursor: grab; }
     </style>
 </head>
 <body>
@@ -55,6 +55,8 @@
         let canvas = document.getElementById("levelCanvas");
         let ctx = canvas.getContext("2d");
         let objects = { green: [], water: [], sand: [], sticky: [], start: { x: 149, y: 218 }, flag: { x: 860, y: 225 } };
+        let draggingObject = null;
+        let offsetX, offsetY;
 
         function drawObjects() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -113,6 +115,35 @@
             console.log("Level Data:", levelData);
             alert("World and Level data saved! Check the console for output.");
         }
+
+        canvas.addEventListener("mousedown", function(event) {
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+            
+            for (let type in objects) {
+                objects[type].forEach(obj => {
+                    if (x >= obj.x && x <= obj.x + 50 && y >= obj.y && y <= obj.y + 10) {
+                        draggingObject = obj;
+                        offsetX = x - obj.x;
+                        offsetY = y - obj.y;
+                    }
+                });
+            }
+        });
+
+        canvas.addEventListener("mousemove", function(event) {
+            if (draggingObject) {
+                let rect = canvas.getBoundingClientRect();
+                draggingObject.x = event.clientX - rect.left - offsetX;
+                draggingObject.y = event.clientY - rect.top - offsetY;
+                drawObjects();
+            }
+        });
+
+        canvas.addEventListener("mouseup", function() {
+            draggingObject = null;
+        });
 
         drawObjects();
     </script>
